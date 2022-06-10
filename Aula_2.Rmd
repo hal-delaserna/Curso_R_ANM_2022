@@ -1,0 +1,142 @@
+---
+title: "Aula 2"
+author: "humberto serna"
+date: '2022-05-19'
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE, highlight=TRUE)
+```
+
+## Vetores
+
+-   conjuntos ordenados (indexados) de variáveis de um mesmo tipo 
+
+-   ao buscar valores em vetores, usamos '[]' (colchetes) pra indicar a posição do item que desejamos. Ex:
+
+```{r}
+n <- c(82, 29, 50, 28, 30, 13)
+# 3º e 4º item:
+n[c(3,4)]
+
+```
+
+
+##  Vetores
+
+-   Podemos usar regras para busca. Ex:
+
+```{r}
+# Todo o conjunto, exceto o 3º e 4º
+n[-c(3,4)]
+```
+
+Façam o seguinte teste: 
+
+```{r}
+n <- sample(10,5)
+print(n)
+n > 4
+```
+E depois este:
+
+```{r}
+n[n > 30]
+```
+
+
+## Vetores
+
+Também há vetores de caracteres:
+
+```{r}
+elemento <- c('Chumbo', 'Cobre', 'Estanho', 'Níquel', 
+                 'Zinco', 'Alumínio')
+
+
+# Todos menos o 1º e 6º item:
+elemento[-c(1,6)]
+```
+
+Faça esse teste:
+
+```{r}
+elemento == "Cromo"
+```
+
+
+## Exercício
+
+**1. Em uma variável chamada `meu_nome`, use o operador de atribuição `<-` para armazenar nela o seu nome. Use a função `nchar()` para contar os caracteres**
+
+**2. Em  `elemento <- c("Areia","Cromo","Ferro")` crie um teste lógico que faça retornar todos os elementos, exceto "Areia"**
+
+## Exercício
+
+**3. Crie uma variável chamada "substâncias" e atribua a ela o nome de três substâncias metálicas:**
+
+  - Utilize a a função `length()` para verificar o tamanho do vetor.
+  
+  - Inspecione a saída de paste("Minério de ", substâncias). O tamanho do vetor mudou?
+
+## Exercício
+
+**4. O nome de uma variável deve sempre começar por caracteres, não números. Se tentarmos `20_05 <- "hoje"`, dará erro. Mas não: `maio_20 <- "hoje"`. Agora teste os casos a seguir e observe as mensagens:**
+
+
+```{r}
+830.123/2099 <- "licenciamento"
+processo_830.123/2099 <- "licenciamento"
+```
+
+
+## Exercício 
+
+**5. Use a função sum() para somar os valores de 1 a 100.**
+
+**6. Crie uma variável chamada "var" e armazene nela a sequência de números de 1 a 20:**
+
+**7. Use o índice de posição (entre colchetes) para fazer o R devolver o primeiro número dessa sequência. Em seguida, faça o R devolver o último número da sequência.**
+  
+**8. Multiplique todos os valores do vetor por `-1`. Guarde o resultado em um novo objeto chamado `var_negativo`**
+
+
+## Exercício 
+
+**- Armazenaremos na variável `Área_ha` um número inteiro entre 100 e 10000. Sem olhar qual número foi, resolva os itens a seguir:**
+
+```{r}
+Área_ha <- sample(x = 100:10000, size = 1)
+```
+
+  - Teste se a Área_ha é maior ou igual a 5000.
+
+  - Teste se a Área_ha é menor ou igual a 2000.
+
+  - Teste se a Área_ha é maior que 1000.
+
+  - A Área_ha é par? (dica: consulte `help("%%")` para saber mais sobre o operador módulo).
+
+## Dataframes
+
+-   São tabelas em que cada coluna é um objeto da classe Vetor
+
+-   Todas as colunas guardam dados de um mesmo tipo (somente character, somente numeric, somente logic)
+
+Ex:
+```{r}
+
+lme <- data.frame("n" = c(82, 29, 50, 28, 30, 13), 
+                  "elemento" = c('Chumbo', 'Cobre', 'Estanho', 'Níquel', 
+                 'Zinco', 'Alumínio'))
+
+
+```
+
+
+
+
+
+
+
