@@ -7,7 +7,7 @@
 <br /><br />
 
 # Introdução à linguagem *R* para análise de dados: aplicações com bases da mineração
-___________________________________________________
+
 		
 <div style="text-align: right; font-size: 10.5pt;"> 
 	<b>Instrutor:<a href="mailto:humberto.serna@anm.gov.br"> Humberto Almeida de la Serna </a></b>
