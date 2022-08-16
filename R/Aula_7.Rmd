@@ -1,0 +1,228 @@
+---
+title: "Aula 7"
+author: "humberto serna"
+date: '2022-06-10'
+output: 
+  ioslides_presentation: 
+    highlight: haddock
+    smaller: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(echo = FALSE, eval = F)
+options(editor = 'notepad')
+library(DT)
+library(dplyr)
+```
+
+```{r include=FALSE}
+CFEM_Arrecadacao <-
+  read.table(
+    'https://app.anm.gov.br/dadosabertos/ARRECADACAO/CFEM_Arrecadacao.csv',    
+    header = TRUE,
+    sep = ";" ,
+    quote = "\"",
+    skip = 1000000,
+    fill = TRUE,
+    fileEncoding = "latin1",
+    col.names = c(
+      "Ano",
+      "Mes",
+      "Processo",
+      "AnoDoProcesso",
+      "Tipo_PF_PJ",
+      "CPF_CNPJ",
+      "Substancia",
+      "UF",
+      "Municipio",
+      "QuantidadeComercializada",
+      "UnidadeDeMedida",
+      "ValorRecolhido"
+    ))
+
+
+CFEM_Arrecadacao <- 
+  CFEM_Arrecadacao[CFEM_Arrecadacao$Ano > 2016,]
+
+
+CFEM_Arrecadacao$QuantidadeComercializada <- 
+  as.numeric(
+  gsub(CFEM_Arrecadacao$QuantidadeComercializada, 
+       pattern = ",", 
+       replacement = "."))
+
+
+CFEM_Arrecadacao$ValorRecolhido <- 
+  as.numeric(
+    gsub(CFEM_Arrecadacao$ValorRecolhido, 
+         pattern = ",", 
+         replacement = "."))
+
+CFEM_Arrecadacao$Processo <- 
+  paste(CFEM_Arrecadacao$Processo, CFEM_Arrecadacao$AnoDoProcesso, 
+        sep = "/")
+
+CFEM_Arrecadacao$Municipio <- 
+stringi::stri_c(CFEM_Arrecadacao$Municipio, CFEM_Arrecadacao$UF, sep = "/")
+```
+
+
+## Trabalhando com Data Frames | sintetizando a informação
+
+- Continuaremos usando os registros de recolhimentos da CFEM em [Dados Abertos](https://dados.gov.br/) identificados por titular e processo, com município e mês:
+
+
+```{r echo=TRUE}
+tail(CFEM_Arrecadacao,4)
+```
+
+
+
+## Trabalhando com Data Frames | sintetizando a informação
+
+
+- Há vezes em que desejamos ter uma síntese de algum aspecto de nossa base de dados, como por exemplo produção por substância mineral, ou exportações para um determinado grupo de países
+
+- Embora pudessemos fazer isso aplicando seguidos filtros combinados à função `sum()` felizmente há funções já criadas para abreviar essa tarefa
+
+- No pacote `dplyr::` as funções `summarise()` e `group_by()` são usadas juntas para sintetizarmos uma variável com `sum()`, `max()`, `mean()`, `median()`, etc
+
+## Trabalhando com Data Frames | sintetizando a informação
+
+- No exemplo abaixo vamos agrupar os registros por UF e somar a CFEM recolhida para cada um deles
+
+```{r message=FALSE, warning=FALSE}
+CFEM <- 
+summarise(
+  group_by(CFEM_Arrecadacao[CFEM_Arrecadacao$Ano == 2022, ], UF), 
+  sum(ValorRecolhido))
+
+tail(CFEM,3)
+```
+
+## Trabalhando com Data Frames | CFEM Recolhida por UF em 2022
+
+```{r echo=FALSE}
+
+DT::datatable(rownames = F, data = CFEM, options = list(pageLength = 5, autoWidth = TRUE,searching = FALSE))
+
+```
+
+
+## Trabalhando com Data Frames | CFEM Recolhida por UF em 2022
+
+- A função `summarise()` permite alterarmos o nome da nova variável que criamos, a variável de síntese
+
+
+```{r message=FALSE, warning=FALSE}
+CFEM <- 
+summarise(
+  group_by(CFEM_Arrecadacao[CFEM_Arrecadacao$Ano == 2022, ], 
+           UF), 
+  "CFEM RECOLHIDA EM 2022" = sum(ValorRecolhido))
+
+```
+
+
+## Trabalhando com Data Frames | CFEM Recolhida por UF em 2022
+
+```{r echo=FALSE}
+
+DT::datatable(rownames = F, data = CFEM, options = list(pageLength = 5, autoWidth = TRUE,     searching = FALSE))
+
+```
+
+
+
+## Trabalhando com Data Frames | sintetizando a informação
+
+- A função `group_by()` nos permite inserir tantas variáveis de agrupamento quanto desejarmos
+
+- Vamos apurar a CFEM recolhida não somente por UF, mas também por Ano
+
+```{r message=FALSE, warning=FALSE}
+CFEM <- 
+summarise(
+  group_by(CFEM_Arrecadacao, Ano, UF), 
+  "Valor Recolhido" = sum(ValorRecolhido))
+
+head(as.data.frame(CFEM,3))
+```
+
+
+## Trabalhando com Data Frames | CFEM Recolhida por UF e Ano
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+DT::datatable(data = CFEM, rownames = F, options = list(pageLength = 5, searching = FALSE), width = 650)
+
+```
+
+
+## Trabalhando com Data Frames | CFEM Recolhida por Substância em 2021
+
+- Por sua vez a função `summarise()` também permite escolhermos mais de uma dimensão de sintetize dos nossos dados
+
+- Vamos exemplificar CFEM recolhida por substância, mas incluindo também o máximo recolhimento unitário, o mínimo e o número total de recolhimentos.
+
+```{r message=FALSE, warning=FALSE}
+CFEM <- summarise(
+  group_by(CFEM_Arrecadacao[CFEM_Arrecadacao$Ano == 2022, ], Substancia),
+  "CFEM Recolhido" = sum(ValorRecolhido),
+  "CFEM Max" = max(ValorRecolhido),
+  "CFEM Min" = min(ValorRecolhido),
+  "Recolhimentos" = length(ValorRecolhido))
+
+head(as.data.frame(CFEM,3))
+```
+
+## Trabalhando com Data Frames | CFEM Recolhida por Substância em 2021
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+DT::datatable(rownames = F, data = CFEM, options = list(pageLength = 5, searching = FALSE, autoWidth = TRUE))
+
+```
+
+
+## Exercício 1
+
+
+- Repita os passos não só para Valor, mas também Quantidade
+
+
+
+## Usando Pipes
+
+- É um recurso do pacote `magrittr()` que permite passar parâmetros para uma função através do operador `%>%`
+
+- A partir da versão 4.1 o pipe virou um recurso do R base, ou seja, não precisamos mais carregar o pacote `magrittr()` para usarmos o novo pipe:  `|>`
+
+- Vamos exemplificar a qual a CFEM média recolhida para os Estados brasileiros por ano, desde 2017:
+
+```{r}
+CFEM <- 
+  CFEM_Arrecadacao |> group_by(Ano,UF) |> summarise(mean(ValorRecolhido))
+  
+head(as.data.frame(CFEM),3)
+```
+
+
+## Trabalhando com Data Frames | CFEM média Recolhida por UF desde 2017
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+DT::datatable(rownames = F, data = CFEM, options = list(pageLength = 5, searching = FALSE, autoWidth = TRUE))
+
+```
+
+
+## Exercício 3
+
+- Repita o exercício 1 usando pipes
+
+
+
+

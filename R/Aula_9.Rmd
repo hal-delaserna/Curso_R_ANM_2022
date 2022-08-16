@@ -1,0 +1,28 @@
+---
+title: "Aula_9"
+author: "humberto serna"
+date: '2022-06-30'
+output: 
+  ioslides_presentation: 
+    highlight: haddock
+    smaller: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+library(dplyr)
+library(tidyr)
+options(editor = "notepad")
+```
+
+## Exemplos de aplicações intermediárias e avançadas
+
+<br />
+
+- **Trabalhando com funções: depuração do AMB/SP**  
+  
+- **Webscraping: raspando dados no Sistema de Cadastro Mineiro** 
+
+- **Editando Relatórios Automáticos: Sumário Mineral 4.0**  

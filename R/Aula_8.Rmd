@@ -1,0 +1,271 @@
+---
+title: "Aula_8"
+author: "humberto serna"
+date: '2022-06-06'
+output: 
+  ioslides_presentation: 
+    highlight: haddock
+    smaller: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+library(dplyr)
+library(tidyr)
+options(editor = "notepad")
+```
+
+## Sintetizando a informação
+
+<br />
+
+- **Cláusulas de agrupamento e funções de agregação**  
+  Visto na aula passada, faremos uma revisão  
+
+- **Funções estatísticas básicas: medidas de tendência central, medidas de dispersão, correlação, quantis, assimetria e curtose** 
+
+- **Introdução à identificação de outliers**  
+
+
+## Sintetizando a informação
+
+- Na aula de hoje usaremos a planilha de movimentação da produção bruta
+
+```{r}
+movimentacao <-
+  read.table(
+'D:/Users/humberto.serna/Documents/D_Lake/DBAMB_MovimentacaoProducaoBruta.csv',
+  sep = ";",dec = ",",encoding = "latin1", quote = "", header = T)
+```
+
+- Incluiremos uma coluna de valor unitário a qual chamaremos provisóriamente de "Preço" 
+
+```{r}
+movimentacao$Preco <-
+  round(movimentacao$Valor.Venda.com.Ajuste.por.Substância / 
+      movimentacao$Quantidade.Venda.Substância.com.Ajuste, 2)
+```
+
+- Reparem na função `round()`. Ela impõe arredondamento de valores (no caso para 2 casas decimais).
+
+## Sintetizando a Informação
+
+<br />
+
+- Use `movimentacao |> str()` para inspecionar sua tabela. 
+
+- Use `movimentacao$Preco` para inspecionar a coluna de Preços. 
+
+- Note a presença de registros `NaN` (i.e. *Not a Number*). Isso aparece nas mesmas linhas em que as variáveis `Quantidade.Venda.Substância.com.Ajuste` e `Valor.Venda.com.Ajuste.por.Substância` tem valor '0.00'. `NaN` nos informa um valor indisponível.
+
+
+## Sintetizando a Informação | Cláusulas de agrupamento e funções de agregação
+
+- Na aula anterior combinamos as funções `group_by()` e 
+`summarise()` com funções como `sum()`, `mean()`, `max()` e `min()`. Fazemos isso para obtermos respostas para questões como: Qual o total de CFEM recolhida por município, substância e mês? Qual é o município que menos auferiu CFEM pela extração de minério de ferro em 2021?  
+
+- As funções `group_by()` e `summarise()`são conhecidas como *cláusulas de agrupamento*; e funções tais como `sum()`, `mean()`, `max()` e `min()` como *funções de agregação*.
+
+- Vamos explorar o poder de síntese dessas funções obtendo os preços médios por substância e ano.
+
+```{r message=FALSE, warning=TRUE}
+df_Preco <- 
+  movimentacao |> 
+  group_by(Ano.Base.Ral, Substância.AMB) |>
+  summarise("Preço_Médio" = mean(Preco, na.rm = T))
+```
+
+
+## Sintetizando a Informação | "Preços" médios por Substância e Ano 
+<div align="center">
+
+```{r echo=FALSE}
+df_Preco$Preço_Médio <- round(df_Preco$Preço_Médio, 2)
+DT::datatable(
+  df_Preco[order(df_Preco$Ano.Base.Ral, decreasing = T), ],
+  rownames = F,
+  width = 600, 
+  options = list(pageLength = 8, columnDefs = list(
+    list(className = 'dt-center', targets = 0:2))))
+```
+
+</div>
+
+## Sintetizando a Informação | Pivotagem de tabelas
+
+
+- Foi possível constatar que a média dos valores unitários de venda varia bruscamente para algumas substâncias.  
+- Isso ficará mais evidente ao "espalharmos" o conteúdo de `Ano.Base.Ral` em diferentes colunas, uma para cada ano  
+- Isso é feito com a função `tidyr::pivot_wider()`
+
+```{r}
+df_Preco_Ano <- 
+  df_Preco |> pivot_wider(names_from = 'Ano.Base.Ral', values_from = "Preço_Médio")
+```
+
+- A função `pivot_wider()` tem como atributos `names_from` e `values_from`. No primeiro indicamos a coluna que possui as variáveis que se transformarão em novas colunas; e em `values_from` indicamos a coluna que possui os valores que preencherão as novas colunas criadas.
+
+
+## Sintetizando a Informação | Preços médios por Substância e Ano
+
+```{r echo=FALSE}
+DT::datatable(df_Preco_Ano, rownames = F, options = list(pageLength = 8, columnDefs = list(
+    list(className = 'dt-center', targets = 0:9))))
+```
+
+
+## Sintetizando a Informação | Funções estatísticas básicas
+
+
+- **medidas de tendência central** 
+
+  - Função `mean()` para a média aritimética
+  
+  - Função `median()` para a mediana da série
+
+```{r message=FALSE}
+df_Preco <- 
+  movimentacao |> 
+  group_by(Ano.Base.Ral, Substância.AMB) |>
+  summarise("Preço_Médio" = mean(Preco, na.rm = T),
+            "Mediana" = median(Preco, na.rm = T))
+```
+
+  - Embora não exista uma função para extrairmos a moda podemos combinar as funções `tail(sort(table()),1)`. Mas certifique-se de que suas variáveis são discretas.
+
+## Sintetizando a Informação | Preços médios por Substância e Ano
+
+```{r echo=FALSE}
+df_Preco$Preço_Médio <- round(df_Preco$Preço_Médio, 2)
+df_Preco$Mediana <- round(df_Preco$Mediana, 2)
+DT::datatable(df_Preco, rownames = F, options = list(pageLength = 8, columnDefs = list(
+    list(className = 'dt-center', targets = 0:3))))
+```
+
+
+## Sintetizando a Informação | Funções estatísticas básicas
+
+
+- **medidas de dispersão**
+
+  - Função `var()` para variância e covariância
+
+  - Função `sd()` para desvio padrão (mesma dimensão/unidade de medida)
+
+
+```{r message=FALSE}
+df_Preco <- 
+  movimentacao |> 
+      group_by(Substância.AMB, Ano.Base.Ral) |> 
+  summarise(
+          "Média" = mean(Preco, na.rm = T, ), 
+          "Mediana" = median(Preco, na.rm = T), 
+          "DP" = sd(Preco, na.rm = T),
+          "N" = length(Preco))
+```
+
+
+
+## Sintetizando a Informação | Preços médios por Substância e Ano
+
+```{r echo=FALSE}
+df_Preco$Média <- round(df_Preco$Média, 2)
+df_Preco$Mediana <- round(df_Preco$Mediana, 2)
+df_Preco$DP <- round(df_Preco$DP, 2)
+DT::datatable(df_Preco, rownames = F, options = list(pageLength = 8, columnDefs = list(
+    list(className = 'dt-center', targets = 0:5))))
+```
+
+
+## Sintetizando a Informação | Funções estatísticas básicas
+
+- Usamos a função `cor()` para calcular a correlação entre 2 variáveis.
+- É uma medida de associação entre variáveis, assumindo valores entre -1 e 1, conforme a correlação negativa ou positiva
+ 
+```{r include=FALSE}
+df <- na.omit(df_Preco_Ano)
+df <- pivot_longer(df[,-11], cols = 2:10, names_to = "Ano", values_to = "Preco")
+mtz_precos <- pivot_wider(df, names_from = "Substância.AMB", values_from = "Preco")
+```
+
+- A Matriz de Correlação é uma aplicação útil dessa função. Considere a seguinte matriz com preços de substâncias por ano:
+    
+```{r eval=FALSE}
+# Considere a matriz de preços seguinte:
+mtz_precos |> View()
+```
+    
+## Sintetizando a Informação | Funções estatísticas básicas
+- A Matriz de Correlação mostra o grau de associação entre os preços dos diversos pares de substâncias.
+
+```{r echo=TRUE, eval=FALSE}
+# Excluiremos apenas a primeira coluna, que é a coluna com os Anos, por ser desnecessária.
+cor(mtz_precos[,-1]) |> View()
+```
+
+## Sintetizando a Informação | Introdução à identificação de outliers
+
+- Definição de *outlier*:
+  - Observação "desviante" às demais
+  - item amostral que não pertence à mesma distribuição dos demais item
+  - Observação que não tem origem no mesmo processo gerador que as demais observações
+
+
+```{r include=FALSE}
+substância = "Argilas Comuns"
+ano2011 <- movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2011,] 
+ano2012 <-movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2012,] 
+ano2013 <- movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2013,] 
+ano2014 <- movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2014,] 
+ano2015 <- movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2015,] 
+ano2016 <- movimentacao[movimentacao$Substância.AMB == substância & movimentacao$Ano.Base.Ral == 2016,] 
+```
+
+## Sintetizando a Informação | Introdução à identificação de outliers
+
+- **Boxplots**
+  - É um expediente gráfico para vizualizarmos o formato da distribuição dos dados: **Assimetria** e presença de **outliers**
+  - Linha central: a mediana
+  - Bordas da caixa: intervalo interquartil (1º e 3º quartil)
+  - "Bigodes" (*whiskhers*): 1,5x o intervalo interquartil
+  - Os pontos que extrapolam os 'bigodes' tem probabilidade tão baixa de pertencerem aos mesmo conjunto que os demais, que podem ser considerados outliers
+
+```{r echo=TRUE, eval=FALSE}
+boxplot(
+  ano2011$Preco,
+  ano2012$Preco,
+  ano2013$Preco,
+  ano2014$Preco,
+  ano2015$Preco,
+  ano2016$Preco,
+  names = c(2011, 2012, 2013, 2014, 2015, 2016))
+```
+
+## Sintetizando a Informação | Introdução à identificação de outliers
+
+```{r echo=FALSE}
+boxplot(
+  ano2011$Preco,
+  ano2012$Preco,
+  ano2013$Preco,
+  ano2014$Preco,
+  ano2015$Preco,
+  ano2016$Preco,
+  names = c(2011, 2012, 2013, 2014, 2015, 2016),
+  ylim = c(0, 30),
+  main = "preço mina, Argilas Comuns")
+```
+
+
+```{r eval=FALSE, include=FALSE}
+
+#_____outliers 2015 ----
+outliers_2015 <-
+  inner_join(data.frame(Preco = boxplot(ano2015$Preco)$out), ano2015, by = 'Preco')
+
+```
+
+
+

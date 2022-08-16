@@ -1,0 +1,153 @@
+---
+title: "Aula 4"
+author: "humberto serna"
+date: '2022-05-31'
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE, highlight=TRUE)
+```
+
+
+## Tabelas
+
+- Se desejamos organizar nossos dados em forma de tabela usamos objetos conhecidos como Data frames
+- Dataframes são tabelas em que cada coluna é um objeto do tipo vector
+- Lembre-se que no R um vector é um objeto cujos itens devem ser todos da mesma classe (somente numeric; ou somente character; ou logical).
+- Semelhante ao data frame há o tibble, mas essencialmente são a mesma coisa.
+
+## Data Frames
+
+```{r}
+# contruíndo um data frame
+
+# Definindo as colunas 
+elemento <- c('Chumbo', 'Cobre', "Ferro", 'Estanho',
+              'Níquel','Zinco', 'Alumínio')
+N <- c(82, 29, 26, 50, 28, 30, 13)
+LME <- c(T,T,F,T,T,T,T)
+
+# Unindo colunas com o comando `data.frame()`
+LME_Metais <- data.frame('elemento' = elemento, 'N' = N, "LME" = LME)
+
+# observe o erro
+LME_Metais <- tibble('elemento' = elemento, 'N' = N, 
+                     "LME" = LME)
+```
+
+
+
+## Data Frames
+
+- No data frame cada linha é uma observação (um indivíduo amostral; um registro); e cada coluna, uma variável.
+- Usando o operador $ é possível acessar o conteúdo de uma dada coluna:
+
+```{r}
+LME_Metais$elemento
+```
+
+- Os nomes das colunas podem ser consultados com colnames()
+
+
+
+## Data Frames
+
+- Lembre-se que vetores são objetos indexados e que pra todo item interno sua posição tem um índice:
+```{r}
+elemento[3:5]
+```
+
+
+
+- Em data frames também usamos índices de posição:
+```{r}
+LME_Metais$elemento[3:5]
+```
+
+- Mas diferentemente de vetores, tabelas são objetos com duas dimensões: coluna e linha.
+- Recorremos aos colchetes para mostrar índices de linha e de coluna, separados por vírgula `["linha", "coluna"]`.
+
+
+## Data Frames
+
+- O número antes da vírgula é o nº da linha; o outro, a coluna:
+
+```{r}
+# 3ª linha, 2º coluna:
+LME_Metais[3,2]
+```
+
+- Também podemos assinalar exclusão:
+
+```{r}
+# "Todas as colunas, exceto a segunda"
+LME_Metais[,-2]
+
+# Outro forma de selecionar colunas é pelo nome 
+LME_Metais[,c("elemento", "LME")]
+
+```
+
+## Data Frames
+
+- com head() podemos consultar as 10 primeiras linhas da tabela; e com tail() as 10 últimas
+
+```{r}
+head(LME_Metais, n = 3)
+# os `n` últimos itens da tabela (exemplo: n = 2)
+tail(LME_Metais, n = 2)
+
+```
+
+
+## Data Frames
+
+- Em vetores usamos lenght() para saber seu comprimento. Em data frames, esse comando mostrará a quantidade de variáveis (colunas):
+
+```{r}
+length(LME_Metais)
+# Para conhecer o Nº de linhas, usamos `nrow()`
+nrow(LME_Metais)
+
+```
+
+
+## Data Frames
+
+- Uma forma prática de inspecionar data frames com um só comando é usando str() (obtemos classe, colunas e dimensões)
+
+```{r}
+str(LME_Metais)
+
+# O comando `Summary()` fornece um resumo do Data Frame
+summary(LME_Metais)
+
+```
+
+
+## Data Frames
+
+- A comunidade USGS-R
+
+- O pacotes IBGE e IPEA para obtenção de bases
+
+```{r}
+# dataRetrieval::countyCd |> head()
+# sidrar::info_sidra(x = "1199")
+
+```
+
+
+## Exercícios
+
+1. Encontre o valor máximo e mínimo de uma determinada coluna. (dica: use help(‘max’) para conhecer a função max() e min()).
+
+2. Encontre os elementos únicos de uma de uma determinada coluna. (dica: use help(‘unique’)).
+
+3. Calcular a soma e a média de uma de uma determinada coluna.
+
+4. Obtenha o resumo estatístico e a natureza dos dados de um determinado Data Frame.
+
+5. Obtenha as duas primeiras linhas de um determinado data frame.
+
