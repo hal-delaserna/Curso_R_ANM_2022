@@ -33,7 +33,7 @@ Aprender a *i)* escrever códigos capazes de organizar e cruzar informações en
 | **Curso**  | **Introdução à linguagem R para análise de dados: aplicações com bases da mineração** |
 ---|:---
  **Quantidade de turmas** | 2 turmas
- **Data** |  17/mai à 16/jun - **turma 1** — 2/Ago à 1/Set - **turma 2**
+ **Data** |  17/mai à 16/jun - **turma 1** — Set-Out-Nov/2022 - **turma 2**
  **Horário** | vespertino (14h-17h, terças e sextas)
  **Número de vagas** | **10 vagas**. Contemplando servidores externos à GEMI alocados na Turma 2 (2/Ago à 1/Set).
  **Área Temática** | Economia e Programação
